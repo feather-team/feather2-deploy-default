@@ -1,11 +1,24 @@
 {
   "name": "feather2-deploy-default",
   "version": "1.0.0",
-  "description": "",
+  "description": "feather2.0的deploy策略，不使用fis3的方案，此方案兼容feather1.x",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "",
-  "license": "ISC"
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/feather-team/feather2-deploy-default.git"
+  },
+  "keywords": [
+    "feather",
+    "feather2",
+    "deploy"
+  ],
+  "author": "jsyczhanghao@sina.com",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/feather-team/feather2-deploy-default/issues"
+  },
+  "homepage": "https://github.com/feather-team/feather2-deploy-default#readme"
 }
