@@ -1,6 +1,9 @@
 var path = require('path');
-
-require('./upload.js');
+var Deliver = {
+	http: require('./deliver/http.js'),
+	ftp: require('./deliver/ftp.js'),
+	local: require('./deliver/local.js')
+};
 
 function replaceFrom(path, from, subOnly){
     if(path.indexOf(from) === 0){
@@ -20,33 +23,6 @@ function replaceFrom(path, from, subOnly){
     }
 
     return path;
-}
-
-function localDeliver(id, release, content, next){
-	feather.util.write(release, content);
-	next();
-}
-
-function remoteDeliver(id, release, content, receiver, next){
-	feather.util.upload(
-		receiver, 
-		null, 
-		{
-			to: release
-		}, 
-		content, 
-		id,
-		function(err, res){
-			if(err || res.trim() != '0'){
-				feather.log.error('upload file [' + id + '] to [' + release +
-					'] by receiver [' + receiver + '] error [' + (err || res) + ']');
-			}else{
-				var time = '[' + feather.log.now(true) + ']';
-				process.stdout.write(' - '.green.bold + time.grey + ' ' + id + ' >> '.yellow.bold + release + '\n');
-				next();
-			}
-		}
-	);
 }
 
 module.exports = function(options, modified, total, next){
@@ -80,10 +56,23 @@ module.exports = function(options, modified, total, next){
 			next();
 		}else{
 			var opts = chains.shift();
-			var subOnly = opts.subOnly, from = opts.from, to = opts.to, include = opts.include, exclude = opts.exclude, receiver = opts.receiver;
+			var subOnly = opts.subOnly, from = opts.from, to = opts.to, include = opts.include, exclude = opts.exclude, replace = opts.replace;
+			var receiver = opts.receiver;
+			var connect = opts.connect;
 
 			if(feather.util.exists(to) && !feather.util.isDir(to) || !opts.to){
 				feather.log.error('unable to deliver files to dir[' + to + ']: invalid output dir.');
+			}
+
+			if(replace){
+				if(!Array.isArray(replace)){
+					replace = [replace];
+				}
+
+				//replace
+				replace.forEach(function(opts){
+					require('fis3-deploy-replace')(opts, modified, total, function(){});
+				});
 			}
 
 			var start = 0; end = modified.length;
@@ -106,9 +95,11 @@ module.exports = function(options, modified, total, next){
 		        	var content = file.getContent();
 
 		        	if(receiver){
-		        		remoteDeliver(file.id, target, content, receiver, arguments.callee);
+		        		Deliver.http(file, target, content, receiver, arguments.callee);
+		        	}else if(connect){
+		        		Deliver.ftp(file, target, content, connect, arguments.callee);
 		        	}else{
-		        		localDeliver(file.id, target, content, arguments.callee);
+		        		Deliver.local(file, target, content, null, arguments.callee);
 		        	}
 				}else{
 					arguments.callee();
