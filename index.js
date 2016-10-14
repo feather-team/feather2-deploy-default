@@ -56,7 +56,7 @@ module.exports = function(options, modified, total, next){
 			next();
 		}else{
 			var opts = chains.shift();
-			var subOnly = opts.subOnly, from = opts.from, to = opts.to, include = opts.include, exclude = opts.exclude, replace = opts.replace;
+			var subOnly = opts.subOnly, from = opts.from, to = opts.to, include = opts.include, exclude = opts.exclude, replace = opts.replace || [];
 			var receiver = opts.receiver;
 			var connect = opts.connect;
 
@@ -70,8 +70,10 @@ module.exports = function(options, modified, total, next){
 				}
 
 				//replace
-				replace.forEach(function(opts){
-					require('fis3-deploy-replace')(opts, modified, total, function(){});
+				replace.forEach(function(options){
+					if(!options.from || typeof options.to === 'undefined'){
+        				feather.log.error('Invalid, please set option: {from: `reg/string` to: `function/string` }');
+    				}
 				});
 			}
 
@@ -90,6 +92,10 @@ module.exports = function(options, modified, total, next){
 					(from && file.release.indexOf(from) === 0 || !from) &&
 					feather.util.filter(file.release, include, exclude)
 				){
+					replace.forEach(function(opts){
+						require('./lib/replace.js')(file, opts);
+					});
+
 					var release = replaceFrom(file.getHashRelease(), from, subOnly);
 		        	var target = feather.util(to, release);
 		        	var content = file.getContent();
