@@ -51,8 +51,15 @@ module.exports = function(options, modified, total, next){
 		}
 	});
 
+	feather.emit('deploy:start', {
+		options: options,
+		modified: modified,
+		total: total
+	});
+
 	(function deploy(){
 		if(!chains.length){
+			feather.emit('deploy:end');
 			next();
 		}else{
 			var opts = chains.shift();
