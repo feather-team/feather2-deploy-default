@@ -122,12 +122,14 @@ module.exports = function(options, modified, total, next){
 			var connect = opts.connect;
 
 			if(opts.zip && !zips[opts.zip]){
+				var target = opts.zip.indexOf('/') == 0 ? opts.zip : path.resolve(feather.project.getProjectPath(), opts.zip);
+
 				zips[opts.zip] = {
-					target: path.resolve(feather.project.getProjectPath(), opts.zip),
+					target: target,
 					connect: connect,
 					receiver: receiver,
 					files: {},
-					hash: path.resolve(feather.project.getProjectPath(), opts.zip) + '.hash'
+					hash: target + '.hash'
 				};
 			}
 
