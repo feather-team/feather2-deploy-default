@@ -16,8 +16,8 @@
     "deploy"
   ],
   "dependencies": {
-    "adm-zip": "^0.4.7",
-    "fis-deploy-ftp": "0.0.2"
+    "fis-deploy-ftp": "0.0.2",
+    "yazl": "^2.4.3"
   },
   "author": "jsyczhanghao@sina.com",
   "license": "ISC",

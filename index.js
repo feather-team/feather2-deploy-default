@@ -6,8 +6,6 @@ var Deliver = {
 	local: require('./deliver/local.js')
 };    
 
-var AdmZip = require('adm-zip');
-
 function replaceFrom(path, from, subOnly){
     if(path.indexOf(from) === 0){
         from = from.replace(/\/$/, '');
@@ -47,16 +45,17 @@ function promiseZipOut(zip){
 	        fis.util.mkdir(fis.util.pathinfo(targetPath).dirname);
 	    }
 
-	    var obj = new AdmZip();
+	    var yazl = require("yazl");
+		var obj = new yazl.ZipFile();
 	    var allContent = '';
 
 	    for(var i in zip.files){
 	    	allContent += zip.files[i];
-	    	obj.addFile(i, typeof zip.files[i] == 'string' ? new Buffer(zip.files[i]) : zip.files[i]);
+	    	obj.addBuffer(typeof zip.files[i] == 'string' ? new Buffer(zip.files[i]) : zip.files[i], i);
 	    }
 
-	    obj.writeZip(targetPath, function(){
-    		var file = new feather.file(feather.project.getProjectPath() + '/' + filename);
+	    obj.outputStream.pipe(fs.createWriteStream(targetPath)).on("close", function() {
+		 	var file = new feather.file(feather.project.getProjectPath() + '/' + filename);
     		var content = feather.util.read(targetPath);
     		var md5 = feather.util.md5(allContent, 32);
         	allContent = null;
@@ -73,7 +72,8 @@ function promiseZipOut(zip){
 					target: zip.hash
 	        	}, resolve);
 	        });
-    	});
+		});
+		obj.end();
 	});
 }
 
