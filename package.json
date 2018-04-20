@@ -1,6 +1,6 @@
 {
   "name": "feather2-deploy-default",
-  "version": "1.1.12",
+  "version": "1.1.13",
   "description": "feather2.0的deploy策略，不使用fis3的方案，此方案兼容feather1.x",
   "main": "index.js",
   "scripts": {
@@ -17,6 +17,7 @@
   ],
   "dependencies": {
     "fis-deploy-ftp": "0.0.2",
+    "q": "^1.5.1",
     "yazl": "^2.4.3"
   },
   "author": "jsyczhanghao@sina.com",

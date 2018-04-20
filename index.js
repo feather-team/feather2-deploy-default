@@ -5,6 +5,7 @@ var Deliver = {
 	ftp: require('./deliver/ftp.js'),
 	local: require('./deliver/local.js')
 };    
+var Q = require('q');
 
 function replaceFrom(path, from, subOnly){
     if(path.indexOf(from) === 0){
@@ -37,7 +38,7 @@ function deliver(file, content, opt, callback){
 }
 
 function promiseZipOut(zip){
-	return new Promise(function(resolve){
+	return Q.promise(function(resolve){
 		var filename = Date.now() + '.zip';
 	    var targetPath = path.resolve(fis.project.getTempRoot() + '/zip/', filename);
 
@@ -119,7 +120,7 @@ module.exports = function(options, modified, total, next){
 				promises.push(promiseZipOut(zips[i]));
 			}
 
-			Promise.all(promises).then(function(){
+			Q.all(promises).then(function(){
 				feather.emit('deploy:end');
 				next();
 			})
