@@ -48,8 +48,10 @@ function promiseZipOut(zip){
 	    }
 
 	    var obj = new AdmZip();
+	    var allContent = '';
 
 	    for(var i in zip.files){
+	    	allContent += zip.files[i];
 	    	obj.addFile(i, typeof zip.files[i] == 'string' ? new Buffer(zip.files[i]) : zip.files[i]);
 	    }
 
@@ -58,7 +60,11 @@ function promiseZipOut(zip){
     		var content = feather.util.read(targetPath);
 	        deliver(file, content, zip, function(){
 	        	var hash = new feather.file(feather.project.getProjectPath() + '/' + filename + '.hash');
-	        	deliver(hash, feather.util.md5(content, 32), {
+	        	var md5 = feather.util.md5(allContent, 32);
+	        	allContent = null;
+	        	zip.files = null;
+
+	        	deliver(hash, md5, {
 	        		connect: zip.connect,
 					receiver: zip.receiver,
 					target: zip.hash
@@ -122,14 +128,12 @@ module.exports = function(options, modified, total, next){
 			var connect = opts.connect;
 
 			if(opts.zip && !zips[opts.zip]){
-				var target = opts.zip.indexOf('/') == 0 ? opts.zip : path.resolve(feather.project.getProjectPath(), opts.zip);
-
 				zips[opts.zip] = {
-					target: target,
+					target: path.resolve(feather.project.getProjectPath(), opts.zip),
 					connect: connect,
 					receiver: receiver,
 					files: {},
-					hash: target + '.hash'
+					hash: path.resolve(feather.project.getProjectPath(), opts.zip) + '.hash'
 				};
 			}
 
