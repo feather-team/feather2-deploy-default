@@ -62,7 +62,7 @@ function promiseZipOut(zip){
         	allContent = null;
         	zip.files = null;
 
-        	zip.target = zip.target.replace('${hash}', '_' + md5);
+        	zip.target = zip.target.replace('${hash}', md5);
 
 	        deliver(file, content, zip, function(){
 	        	var hash = new feather.file(feather.project.getProjectPath() + '/' + zip.hash);
