@@ -141,7 +141,7 @@ module.exports = function(options, modified, total, next){
 				}
 
 				zips[opts.zip] = {
-					target: path.resolve(feather.project.getProjectPath(), opts.zip),
+					target: target,
 					connect: connect,
 					receiver: receiver,
 					files: {},
