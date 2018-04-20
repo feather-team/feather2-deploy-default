@@ -58,11 +58,14 @@ function promiseZipOut(zip){
 	    obj.writeZip(targetPath, function(){
     		var file = new feather.file(feather.project.getProjectPath() + '/' + filename);
     		var content = feather.util.read(targetPath);
+    		var md5 = feather.util.md5(allContent, 32);
+        	allContent = null;
+        	zip.files = null;
+
+        	zip.target = zip.target.replace('${hash}', '_' + md5);
+
 	        deliver(file, content, zip, function(){
-	        	var hash = new feather.file(feather.project.getProjectPath() + '/' + filename + '.hash');
-	        	var md5 = feather.util.md5(allContent, 32);
-	        	allContent = null;
-	        	zip.files = null;
+	        	var hash = new feather.file(feather.project.getProjectPath() + '/' + zip.hash);
 
 	        	deliver(hash, md5, {
 	        		connect: zip.connect,
@@ -128,12 +131,21 @@ module.exports = function(options, modified, total, next){
 			var connect = opts.connect;
 
 			if(opts.zip && !zips[opts.zip]){
+				var target = opts.zip.indexOf('/') == 0 ? opts.zip : path.resolve(feather.project.getProjectPath(), opts.zip);
+				var hash;
+
+				if(opts.zipHash){
+					hash = opts.zipHash.indexOf('/') == 0 ? opt.zipHash : path.resolve(feather.project.getProjectPath(), opts.zipHash);
+				}else{
+					hash = target + '.hash';
+				}
+
 				zips[opts.zip] = {
 					target: path.resolve(feather.project.getProjectPath(), opts.zip),
 					connect: connect,
 					receiver: receiver,
 					files: {},
-					hash: path.resolve(feather.project.getProjectPath(), opts.zip) + '.hash'
+					hash: hash
 				};
 			}
 
