@@ -140,7 +140,7 @@ module.exports = function(options, modified, total, next){
 				var hash;
 
 				if(opts.zipHash){
-					hash = opts.zipHash.indexOf('/') == 0 ? opt.zipHash : path.resolve(feather.project.getProjectPath(), opts.zipHash);
+					hash = opts.zipHash.indexOf('/') == 0 ? opts.zipHash : path.resolve(feather.project.getProjectPath(), opts.zipHash);
 				}else{
 					hash = target + '.hash';
 				}
