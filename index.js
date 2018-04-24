@@ -48,23 +48,26 @@ function promiseZipOut(zip){
 
 	    var yazl = require("yazl");
 		var obj = new yazl.ZipFile();
-	    var allContent = '';
+
 
 	    for(var i in zip.files){
-	    	allContent += zip.files[i];
 	    	obj.addBuffer(typeof zip.files[i] == 'string' ? new Buffer(zip.files[i]) : zip.files[i], i);
 	    }
 
 	    obj.outputStream.pipe(fs.createWriteStream(targetPath)).on("close", function() {
 		 	var file = new feather.file(feather.project.getProjectPath() + '/' + filename);
-    		var content = feather.util.read(targetPath);
-    		var md5 = feather.util.md5(allContent, 32);
-        	allContent = null;
+		 	var content = feather.util.read(targetPath);
+    		var fs = require('fs');
+    		var md5;
+		    var crypto = require('crypto');
+		    var md5sum = crypto.createHash('md5');
+
+		    md5sum.update(content);
+		    md5 = md5sum.digest('hex').toLowerCase();
         	zip.files = null;
-
         	zip.target = zip.target.replace('${hash}', md5);
-
-	        deliver(file, content, zip, function(){
+	  
+		    deliver(file, content, zip, function(){
 	        	var hash = new feather.file(feather.project.getProjectPath() + '/' + zip.hash);
 
 	        	deliver(hash, md5, {
@@ -73,6 +76,7 @@ function promiseZipOut(zip){
 					target: zip.hash
 	        	}, resolve);
 	        });
+        	
 		});
 		obj.end();
 	});
